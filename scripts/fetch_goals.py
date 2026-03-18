@@ -1,27 +1,22 @@
-import requests
-import json
-import time
 from datetime import datetime, timedelta
+import requests, json, time
 
-START_DATE = "2026-03-10"
+START_DATE = "2026-03-15"
 END_DATE = "2026-03-17"
 
 def safe_json(url):
     try:
         r = requests.get(url, timeout=20)
         if r.status_code != 200 or not r.text.strip():
-            print(f"Bad response {r.status_code} or empty from {url}")
             return None
         return r.json()
-    except Exception as e:
-        print(f"Request failed: {url} {e}")
+    except:
         return None
 
-start = datetime.fromisoformat(START_DATE)
-end = datetime.fromisoformat(END_DATE)
-
-date = start
 goals = []
+
+date = datetime.fromisoformat(START_DATE)
+end = datetime.fromisoformat(END_DATE)
 
 while date <= end:
     date_str = date.strftime("%Y-%m-%d")
@@ -54,10 +49,12 @@ while date <= end:
                 time.sleep(0.4)  # avoid rate limits
     else:
         print(f"No schedule for {date_str}")
-
     date += timedelta(days=1)
 
-print(f"Total goals collected: {len(goals)}")
-
+# write data/goals.json
+import os
+os.makedirs("data", exist_ok=True)
 with open("data/goals.json", "w") as f:
     json.dump(goals, f)
+
+print("Total goals collected:", len(goals))
